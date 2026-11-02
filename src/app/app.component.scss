@@ -251,42 +251,23 @@ mat-sidenav {
 }
 
 // Cold-start entrance: plays as the shell is inserted (once data is loaded),
-// while the boot splash fades out over it. Motion only, no fade: content is
-// readable from its first frame, the short settle just makes the arrival
-// feel alive. The end of the `.main-content` animation clears `.app-entrance`,
-// so it must be the last to finish (mobile-bottom-nav's entrance matches it).
-@keyframes entrance-slide-left {
-  from {
-    transform: translateX(-8px);
-  }
-}
-
-@keyframes entrance-slide-up {
+// while the launch screen (index.html) fades out over it. The launch screen
+// already paints the frame (nav edge, bottom bar), so the chrome stays put
+// and only the content settles into place. Motion only, no fade: content is
+// readable from its first frame. The end of this animation clears
+// `.app-entrance` (AppComponent).
+@keyframes entrance-settle {
   from {
     transform: translateY(8px);
   }
 }
 
-.app-entrance {
-  .main-content {
-    animation: entrance-slide-up 280ms var(--ani-enter-timing) backwards;
-  }
-
-  // Inner drawer only: a transform on the magic-side-nav host collapses the
-  // mobile drawer (see magic-side-nav.component.scss), and on mobile the nav
-  // is off-canvas anyway.
-  @include mq(xs) {
-    magic-side-nav ::ng-deep .nav-sidenav {
-      animation: entrance-slide-left 280ms var(--ani-enter-timing) backwards;
-    }
-  }
+.app-entrance .main-content {
+  animation: entrance-settle 280ms var(--ani-enter-timing) backwards;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .app-entrance {
-    .main-content,
-    magic-side-nav ::ng-deep .nav-sidenav {
-      animation: none;
-    }
+  .app-entrance .main-content {
+    animation: none;
   }
 }

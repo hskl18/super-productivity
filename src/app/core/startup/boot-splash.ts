@@ -17,22 +17,16 @@ export const fadeOutBootSplash = (doc: Document = document): void => {
     return;
   }
   splash.classList.add(BOOT_SPLASH_HIDING_CLASS);
-  void whenAnimationsSettle(splash, true).then(() => splash.remove());
+  void whenAnimationsSettle(splash).then(() => splash.remove());
 };
 
 /**
- * Resolves once the element's current finite animations (and transitions)
- * have finished or been cancelled; at once if none run, e.g. with animations
- * off. Infinite ones (the splash's pulse) are ignored: they never finish.
+ * Resolves once the element's own finite animations and transitions (not its
+ * descendants') have finished or been cancelled; at once if none run, e.g.
+ * with animations off. Infinite ones are ignored: they never finish.
  */
-export const whenAnimationsSettle = async (
-  el: Element,
-  isSubtree = false,
-): Promise<void> => {
-  const animations =
-    typeof el.getAnimations === 'function'
-      ? el.getAnimations({ subtree: isSubtree })
-      : [];
+export const whenAnimationsSettle = async (el: Element): Promise<void> => {
+  const animations = typeof el.getAnimations === 'function' ? el.getAnimations() : [];
   const finite = animations.filter(
     (a) => a.effect?.getComputedTiming().endTime !== Infinity,
   );

@@ -98,6 +98,7 @@ import { ViewTaskListRegistry } from './features/tasks/view-task-list-registry.s
 import { BoardsService } from './features/boards/boards.service';
 import { DIALOG_AUTO_FOCUS_TYPING } from './util/dialog-auto-focus';
 import { fadeOutBootSplash, whenAnimationsSettle } from './core/startup/boot-splash';
+import { saveLaunchFrame } from './core/startup/launch-frame';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -259,9 +260,10 @@ export class AppComponent implements OnDestroy, AfterViewInit {
         fadeOutBootSplash(this._document ?? undefined);
         if (this.isAppEntrance() && !this._isEntranceEndScheduled) {
           this._isEntranceEndScheduled = true;
-          void whenAnimationsSettle(mainContent).then(() =>
-            this.isAppEntrance.set(false),
-          );
+          void whenAnimationsSettle(mainContent).then(() => {
+            this.isAppEntrance.set(false);
+            this._saveLaunchFrame();
+          });
         }
       },
     });
@@ -555,16 +557,36 @@ export class AppComponent implements OnDestroy, AfterViewInit {
         });
       };
 
+      // Keep the launch screen's frame current: theme or layout changes made in
+      // this session show from the next launch on. Hidden covers mobile
+      // backgrounding, pagehide a closing window.
+      const onVisibilityChange = (): void => {
+        if (doc.visibilityState === 'hidden') {
+          this._saveLaunchFrame();
+        }
+      };
+      const onPageHide = (): void => this._saveLaunchFrame();
+
       doc.addEventListener('dragover', onDragOver, { passive: false });
       doc.addEventListener('drop', onDrop, { passive: false });
       doc.addEventListener('keydown', onKeyDown);
+      doc.addEventListener('visibilitychange', onVisibilityChange);
+      window.addEventListener('pagehide', onPageHide);
 
       this._destroyRef.onDestroy(() => {
         doc.removeEventListener('dragover', onDragOver);
         doc.removeEventListener('drop', onDrop);
         doc.removeEventListener('keydown', onKeyDown);
+        doc.removeEventListener('visibilitychange', onVisibilityChange);
+        window.removeEventListener('pagehide', onPageHide);
       });
     });
+  }
+
+  private _saveLaunchFrame(): void {
+    if (this._document) {
+      saveLaunchFrame(this._document, this._globalThemeService.isDarkTheme());
+    }
   }
 
   ngOnDestroy(): void {

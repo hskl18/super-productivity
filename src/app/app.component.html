@@ -92,7 +92,6 @@
     <!-- Mobile Bottom Navigation -->
     @if (isShowMobileButtonNav()) {
       <mobile-bottom-nav
-        [isEntrance]="isAppEntrance()"
         (toggleMobileNavEvent)="magicSideNav.toggleMobileNav()"
       ></mobile-bottom-nav>
     }

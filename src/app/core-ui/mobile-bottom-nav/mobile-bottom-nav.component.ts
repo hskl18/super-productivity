@@ -4,7 +4,6 @@ import {
   computed,
   ElementRef,
   inject,
-  input,
   output,
   signal,
   viewChild,
@@ -66,8 +65,6 @@ export class MobileBottomNavComponent {
   private readonly _workContextService = inject(WorkContextService);
   private readonly _globalConfigService = inject(GlobalConfigService);
   private readonly _router = inject(Router);
-
-  isEntrance = input(false);
 
   readonly T = T;
   readonly TODAY_TAG = TODAY_TAG;

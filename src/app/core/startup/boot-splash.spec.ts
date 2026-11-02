@@ -46,7 +46,7 @@ describe('fadeOutBootSplash', () => {
     expect(splash.isConnected).toBe(false);
   });
 
-  it('does not wait for infinite animations inside the splash', async () => {
+  it('does not wait for animations inside the splash (pulse, delayed tip)', async () => {
     style.textContent += ` @keyframes spin { to { opacity: 0.5; } } .pulse { animation: spin 1s infinite; }`;
     const pulse = document.createElement('div');
     pulse.className = 'pulse';
