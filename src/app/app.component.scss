@@ -250,10 +250,10 @@ mat-sidenav {
   }
 }
 
-// Cold-start entrance, played while the boot splash fades out (AppRevealService,
-// whose APP_ENTRANCE_DURATION_MS must cover the longest delay + duration here).
-// Nav leads, content follows, so the shell assembles in one calm motion instead
-// of popping in piece by piece.
+// Cold-start entrance: plays as the shell is inserted (once data is loaded),
+// while the boot splash fades out over it. Nav leads, content follows. The end
+// of the `.main-content` animation clears `.app-entrance`, so it must be the
+// last to finish (mobile-bottom-nav's entrance ends inside it).
 @keyframes entrance-slide-left {
   from {
     opacity: 0;

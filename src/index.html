@@ -158,7 +158,8 @@
       }
 
       /* A sibling of <app-root>, so bootstrapping does not wipe it: it stays
-         up until the first route has rendered (AppRevealService), then fades.
+         up until the shell renders (once data is loaded), then fades out over
+         the shell's entrance (fadeOutBootSplash in AppComponent).
          z-index stays below the CDK overlay (1000) so startup dialogs show. */
       #app-splash {
         position: fixed;
@@ -181,10 +182,11 @@
         -webkit-app-region: no-drag;
       }
 
+      /* The logo shows at once: on mobile it continues the native launch
+         screen, so no dip to an empty background before it. */
       .app-loading {
         position: fixed;
         inset: 0;
-        animation: sp-fade-in 600ms cubic-bezier(0, 0, 0.2, 1) 150ms backwards;
         transition:
           opacity 260ms cubic-bezier(0.4, 0, 1, 1),
           transform 420ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -231,6 +233,8 @@
         max-width: 80vw;
         transform: translate(-50%);
         padding-bottom: 10px;
+        /* Only for slow starts; a fast one shows just the logo. */
+        animation: sp-fade-in 600ms cubic-bezier(0, 0, 0.2, 1) 1000ms backwards;
       }
 
       .app-loading .productivity-tip h2#heading {
@@ -254,7 +258,6 @@
       @keyframes sp-fade-in {
         from {
           opacity: 0;
-          transform: scale(0.97);
         }
       }
 
@@ -271,7 +274,7 @@
       }
 
       @media (prefers-reduced-motion: reduce) {
-        .app-loading,
+        .productivity-tip,
         .app-loading .spinner-pulse {
           animation: none;
         }

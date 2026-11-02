@@ -157,7 +157,9 @@
 }
 
 .mobile-bottom-nav.entrance {
-  animation: slide-up-from-bottom 400ms ease-out 250ms backwards;
+  // Ends with the content entrance (app.component.scss), whose end clears
+  // `isEntrance`; running longer would cut this short.
+  animation: slide-up-from-bottom 420ms var(--ani-enter-timing) 120ms backwards;
 }
 
 @media (prefers-reduced-motion: reduce) {

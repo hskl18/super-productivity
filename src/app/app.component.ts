@@ -13,6 +13,8 @@ import {
   OnDestroy,
   signal,
   ViewChild,
+  afterRenderEffect,
+  viewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ShortcutService } from './core-ui/shortcut/shortcut.service';
@@ -95,7 +97,7 @@ import { BrowserTitleService } from './core/browser-title/browser-title.service'
 import { ViewTaskListRegistry } from './features/tasks/view-task-list-registry.service';
 import { BoardsService } from './features/boards/boards.service';
 import { DIALOG_AUTO_FOCUS_TYPING } from './util/dialog-auto-focus';
-import { AppRevealService } from './core/startup/app-reveal.service';
+import { fadeOutBootSplash, whenAnimationsSettle } from './core/startup/boot-splash';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -163,7 +165,6 @@ export class AppComponent implements OnDestroy, AfterViewInit {
   private _ngZone = inject(NgZone);
   private _document = inject(DOCUMENT, { optional: true });
   private _startupService = inject(StartupService);
-  private _appRevealService = inject(AppRevealService);
   // Injected for side-effect: creates example tasks on first run
   private _exampleTasksService = inject(ExampleTasksService);
   // Injected for side-effect: loads per-instance task widget settings from
@@ -247,7 +248,23 @@ export class AppComponent implements OnDestroy, AfterViewInit {
 
   constructor() {
     this._startupService.init();
-    this._appRevealService.init();
+    // Once the shell has rendered: fade the boot splash out over it, and end
+    // the entrance when its animation has played (at once if animations are off).
+    afterRenderEffect({
+      write: () => {
+        const mainContent = this._mainContent()?.nativeElement;
+        if (!mainContent) {
+          return;
+        }
+        fadeOutBootSplash(this._document ?? undefined);
+        if (this.isAppEntrance() && !this._isEntranceEndScheduled) {
+          this._isEntranceEndScheduled = true;
+          void whenAnimationsSettle(mainContent).then(() =>
+            this.isAppEntrance.set(false),
+          );
+        }
+      },
+    });
     this._iosShareService.start();
     this._agentCaptureService.start();
     void this._materialIconsLoaderService.ensureFontReady();
@@ -501,10 +518,18 @@ export class AppComponent implements OnDestroy, AfterViewInit {
     }
   }
 
-  // Cold-start hand-off from the boot splash (see AppRevealService).
-  readonly isAppRevealed = this._appRevealService.isRevealed;
-  readonly isAppEntrance = this._appRevealService.isEntrance;
-  readonly isAppSettled = this._appRevealService.isSettled;
+  /**
+   * The shell is created only once data is loaded, so it never shows half
+   * empty; its CSS entrance plays as it is inserted, while the boot splash
+   * (index.html) fades out over it.
+   */
+  readonly isDataLoaded = toSignal(this._dataInitStateService.isAllDataLoadedInitially$, {
+    initialValue: false,
+  });
+  /** Cleared when the entrance ends, so rebuilding the shell (focus mode) does not replay it. */
+  readonly isAppEntrance = signal(true);
+  private _isEntranceEndScheduled = false;
+  private readonly _mainContent = viewChild<ElementRef<HTMLElement>>('mainContent');
 
   ngAfterViewInit(): void {
     this._ngZone.runOutsideAngular(() => {

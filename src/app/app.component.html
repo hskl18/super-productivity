@@ -44,7 +44,7 @@
   @defer (on immediate) {
     <focus-mode-overlay @warp></focus-mode-overlay>
   }
-} @else {
+} @else if (isDataLoaded()) {
   <div
     class="app-container"
     [style.height]="iosShellHeight()"
@@ -61,7 +61,10 @@
     >
     </magic-side-nav>
 
-    <main class="main-content">
+    <main
+      #mainContent
+      class="main-content"
+    >
       <right-panel>
         <header
           [class.isNotScrolled]="!layoutService.isWorkViewScrolled()"
@@ -72,11 +75,11 @@
           <banner></banner>
         </header>
 
-        <!-- The first route renders under the boot splash; the shell entrance animates it in. -->
+        <!-- The first route arrives with the shell, whose entrance animates it in. -->
         <div
           #routeWrapper
           [@warpRoute]="getPage(o)"
-          [@.disabled]="!isAppRevealed()"
+          [@.disabled]="isAppEntrance()"
           class="route-wrapper"
         >
           <router-outlet #o="outlet"></router-outlet>
@@ -100,7 +103,7 @@
 <!-- One host for part 1 and the tour, so the chip can slide from one into the other.
      Waits for the shell entrance so the chip arrives after, and anchors to, settled content. -->
 @if (
-  isAppSettled() &&
+  !isAppEntrance() &&
   (onboardingHintService.currentStep() || quickTourService.currentStep())
 ) {
   <onboarding-hint></onboarding-hint>
