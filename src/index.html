@@ -169,7 +169,8 @@
         color: var(--splash-fg);
         cursor: grab;
         -webkit-app-region: drag;
-        transition: opacity 420ms cubic-bezier(0.4, 0, 0.2, 1);
+        /* Short: the content below is ready; the fade only softens the cut. */
+        transition: opacity 180ms cubic-bezier(0.4, 0, 1, 1);
       }
 
       #app-splash:active {
@@ -187,14 +188,11 @@
       .app-loading {
         position: fixed;
         inset: 0;
-        transition:
-          opacity 260ms cubic-bezier(0.4, 0, 1, 1),
-          transform 420ms cubic-bezier(0.4, 0, 0.2, 1);
+        transition: transform 180ms cubic-bezier(0.4, 0, 1, 1);
       }
 
       #app-splash.is-hiding .app-loading {
-        opacity: 0;
-        transform: scale(1.06);
+        transform: scale(1.04);
       }
 
       .app-loading .logo {

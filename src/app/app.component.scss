@@ -251,26 +251,25 @@ mat-sidenav {
 }
 
 // Cold-start entrance: plays as the shell is inserted (once data is loaded),
-// while the boot splash fades out over it. Nav leads, content follows. The end
-// of the `.main-content` animation clears `.app-entrance`, so it must be the
-// last to finish (mobile-bottom-nav's entrance ends inside it).
+// while the boot splash fades out over it. Motion only, no fade: content is
+// readable from its first frame, the short settle just makes the arrival
+// feel alive. The end of the `.main-content` animation clears `.app-entrance`,
+// so it must be the last to finish (mobile-bottom-nav's entrance matches it).
 @keyframes entrance-slide-left {
   from {
-    opacity: 0;
-    transform: translateX(-16px);
+    transform: translateX(-8px);
   }
 }
 
 @keyframes entrance-slide-up {
   from {
-    opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(8px);
   }
 }
 
 .app-entrance {
   .main-content {
-    animation: entrance-slide-up 520ms var(--ani-enter-timing) 80ms backwards;
+    animation: entrance-slide-up 280ms var(--ani-enter-timing) backwards;
   }
 
   // Inner drawer only: a transform on the magic-side-nav host collapses the
@@ -278,7 +277,7 @@ mat-sidenav {
   // is off-canvas anyway.
   @include mq(xs) {
     magic-side-nav ::ng-deep .nav-sidenav {
-      animation: entrance-slide-left 480ms var(--ani-enter-timing) backwards;
+      animation: entrance-slide-left 280ms var(--ani-enter-timing) backwards;
     }
   }
 }
