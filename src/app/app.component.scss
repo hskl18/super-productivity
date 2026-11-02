@@ -250,41 +250,43 @@ mat-sidenav {
   }
 }
 
-// App entrance animation after onboarding preset selection
+// Cold-start entrance, played while the boot splash fades out (AppRevealService,
+// whose APP_ENTRANCE_DURATION_MS must cover the longest delay + duration here).
+// Nav leads, content follows, so the shell assembles in one calm motion instead
+// of popping in piece by piece.
 @keyframes entrance-slide-left {
   from {
     opacity: 0;
-    transform: translateX(-30px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateX(0);
+    transform: translateX(-16px);
   }
 }
 
 @keyframes entrance-slide-up {
   from {
     opacity: 0;
-    transform: translateY(20px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
+    transform: translateY(16px);
   }
 }
 
 .app-entrance {
-  // Main content area fades + slides up as a whole
   .main-content {
-    animation: entrance-slide-up 450ms ease-out 150ms backwards;
+    animation: entrance-slide-up 520ms var(--ani-enter-timing) 80ms backwards;
+  }
+
+  // Inner drawer only: a transform on the magic-side-nav host collapses the
+  // mobile drawer (see magic-side-nav.component.scss), and on mobile the nav
+  // is off-canvas anyway.
+  @include mq(xs) {
+    magic-side-nav ::ng-deep .nav-sidenav {
+      animation: entrance-slide-left 480ms var(--ani-enter-timing) backwards;
+    }
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .app-entrance {
-    .main-content {
+    .main-content,
+    magic-side-nav ::ng-deep .nav-sidenav {
       animation: none;
     }
   }
